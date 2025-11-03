@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Penalty Mini-Game</title>
+<style>
+body { margin:0; overflow:hidden; font-family:Arial; background:#121212; }
+#score { position:absolute; top:10px; left:50%; transform:translateX(-50%); color:#1db954; font-size:24px; z-index:10; display:none;}
+#startScreen {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; justify-content:center; align-items:center; flex-direction:column;
+    background: rgba(0,0,0,0.9); z-index:10;
+}
+#startScreen button {
+    padding:20px 40px; font-size:24px; border:none; border-radius:15px;
+    background:#1db954; color:#fff; cursor:pointer;
+}
+#instructions { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); color:#fff; font-size:16px; text-align:center; z-index:10; display:none;}
+</style>
+</head>
+<body>
+
+<div id="score">Score: 0</div>
+<div id="instructions">Swipe nach oben/rechts/links, um zu schießen!</div>
+<div id="startScreen">
+    <h1 style="color:#1db954;">⚽ 3D Penalty Game</h1>
+    <button id="startBtn">Spiel Starten</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.14.0/gsap.min.js"></script>
+
+<script>
+let scene, camera, renderer;
+let floor, goal, ball, keeper;
+let score = 0;
+let scoreEl = document.getElementById("score");
+let instructions = document.getElementById("instructions");
+
+// Start Button
+document.getElementById("startBtn").addEventListener("click", () => {
+    document.getElementById("startScreen").style.display = "none";
+    scoreEl.style.display = "block";
+    instructions.style.display = "block";
+    initGame();
+});
+
+function initGame(){
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Licht
+    let light = new THREE.DirectionalLight(0xffffff,1);
+    light.position.set(5,10,5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
+
+    // Boden (Rasen)
+    let floorGeometry = new THREE.PlaneGeometry(20, 10);
+    let floorMaterial = new THREE.MeshPhongMaterial({color:0x0a8c33});
+    floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI/2;
+    scene.add(floor);
+
+    // Tor
+    let goalGeometry = new THREE.BoxGeometry(6,2.5,0.2);
+    let goalMaterial = new THREE.MeshPhongMaterial({color:0xffffff});
+    goal = new THREE.Mesh(goalGeometry, goalMaterial);
+    goal.position.set(0,1.25,-4);
+    scene.add(goal);
+
+    // Ball
+    let ballGeometry = new THREE.SphereGeometry(0.2,32,32);
+    let ballMaterial = new THREE.MeshPhongMaterial({color:0xff9900});
+    ball = new THREE.Mesh(ballGeometry, ballMaterial);
+    resetBall();
+    scene.add(ball);
+
+    // Torwart
+    let keeperGeometry = new THREE.CylinderGeometry(0.3,0.3,1,32);
+    let keeperMaterial = new THREE.MeshPhongMaterial({color:0xff0000});
+    keeper = new THREE.Mesh(keeperGeometry, keeperMaterial);
+    keeper.position.set(0,0.5,-3.9);
+    scene.add(keeper);
+
+    camera.position.set(0,3,7);
+    camera.lookAt(0,1,-2);
+
+    // Swipe Steuerung
+    let startX, startY, endX, endY;
+    renderer.domElement.addEventListener("touchstart", e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+
+    renderer.domElement.addEventListener("touchend", e => {
+        endX = e.changedTouches[0].clientX;
+        endY = e.changedTouches[0].clientY;
+        let dx = endX - startX;
+        let dy = startY - endY;
+        let strength = Math.min(Math.sqrt(dx*dx + dy*dy)/100,2);
+        let angleX = dx/200;
+        let angleY = dy/200;
+        shootBall(strength, angleX, angleY);
+    });
+
+    animate();
+}
+
+function resetBall(){
+    ball.position.set(0,0.2,3);
+    keeper.position.set(0,0.5,-3.9);
+}
+
+function shootBall(strength, angleX, angleY){
+    gsap.to(ball.position, {
+        x: angleX*5,
+        y: 0.2 + angleY*2,
+        z: -4,
+        duration:1,
+        ease:"power2.out",
+        onComplete: checkGoal
+    });
+    // Torwart zufällig bewegen
+    let move = (Math.random()-0.5)*4;
+    gsap.to(keeper.position, {x:move, duration:1, ease:"power2.inOut"});
+}
+
+function checkGoal(){
+    let dx = Math.abs(ball.position.x - keeper.position.x);
+    let dz = ball.position.z;
+    if(dx > 0.5 && dz <= -3.8){
+        score++;
+        scoreEl.textContent = "Score: " + score;
+        alert("Tor! Score: " + score);
+    } else {
+        alert("Gehalten! Score: "+score);
+    }
+    resetBall();
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+// Responsive
+window.addEventListener("resize", ()=> {
+    if(camera && renderer){
+        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+});
+</script>
+</body>
+</html>
