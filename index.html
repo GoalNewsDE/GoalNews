@@ -23,7 +23,7 @@
             <span class="news-item">Am. Football: Am 9.11.2025: Berlin-Game Indianapolis Colts - Atlanta Falcons</span>
             <span class="news-item">Comeback von Alphonso Davies: "Er ist schon wieder mit Ball beim Training"!</span>
             <span class="news-item">Der Spielplan des Borussia Dortmund im November ist vollgepackt – gleich sechs Pflichtspiele in Bundesliga und Champions League stehen an.</span>
-            <span class="news-item">Borussia Dortmund besiegt FC Augsburg 1:0 dank Treffer von Serhou Guirassy – ein Statement vorm Kracher gegen Man City.</span>
+            <span class="news-item">Borussia Dortmund besiegt FC Augsburg 1:0 dank Treffer von Serhou Guirassy – ein Statement vorm Kracher gegen Man City.</span>
             <span class="news-item">Erstes Gegentor nach 25 Sekunden: Union-Frauen kassieren gegen Bremen vierte Saisonniederlage!</span>
             <span class="news-item">Sky-Experte Didi Hamann über Wagner: "Jetzt auf ihn loszugehen, halte ich nicht für richtig"</span>
         </div>
@@ -241,6 +241,65 @@
             });
         });
     </script>
+
+    <!-- 🎉 Konfetti-Kanone für 35 Follower -->
+    <div id="follower-text"> 35 Follower! Danke euch!</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+    // Text-Styling
+    const text = document.getElementById("follower-text");
+    text.style.position = "fixed";
+    text.style.top = "50%";
+    text.style.left = "50%";
+    text.style.transform = "translate(-50%, -50%)";
+    text.style.fontSize = "2.8rem";
+    text.style.fontFamily = "'Poppins', sans-serif";
+    text.style.color = "#00b300";
+    text.style.fontWeight = "bold";
+    text.style.textShadow = "0 0 20px #00ff00";
+    text.style.animation = "popIn 2s ease-out";
+    setTimeout(() => text.style.display = "none", 5000);
+
+    // Konfetti-Kanonen
+    function shootConfetti() {
+      const duration = 1000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({
+          particleCount: 12,
+          startVelocity: 70,
+          spread: 100,
+          origin: { x: 0.2, y: 1 },
+          gravity: 0.9,
+          colors: ['#00ff00', '#ffffff']
+        });
+        confetti({
+          particleCount: 12,
+          startVelocity: 70,
+          spread: 100,
+          origin: { x: 0.8, y: 1 },
+          gravity: 0.9,
+          colors: ['#00ff00', '#ffffff']
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+    }
+
+    // Mehrfach schießen für maximale Party
+    shootConfetti();
+   
+  
+    </script>
+
+    <style>
+    @keyframes popIn {
+      0% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    </style>
 
     <script async defer src="https://apis.google.com/js/api.js"></script>
 </body>
