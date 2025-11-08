@@ -3,72 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GoalNews - Laufende Spiele</title>
-<link rel="stylesheet" href="style.css">
+<title>GoalNews - Live Spiele</title>
+<link rel="icon" href="https://i.ibb.co/21R6p75W/Logo-1.jpg" type="image/jpeg">
+
 <style>
-body { font-family: 'Poppins', sans-serif; background:#fff; color:#222; margin:0; padding:0;}
-header { background:#1db954; color:white; text-align:center; padding:20px; font-size:1.8rem; font-weight:bold; }
-main { max-width:900px; margin:40px auto; padding:0 20px; }
-h2 { color:#1db954; margin-bottom:20px; }
-table { width:100%; border-collapse:collapse; }
-th, td { padding:12px; border:1px solid #ccc; text-align:left; }
-th { background:#1db954; color:white; }
-tr:nth-child(even){ background:#f4f4f4; }
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #0f0f0f;
+    color: #eee;
+    margin:0;
+    padding:0;
+    text-align:center;
+}
+
+h2 { margin:20px 0; }
+
+.matches-table {
+    width:90%;
+    max-width:800px;
+    margin:20px auto;
+    border-collapse: collapse;
+}
+.matches-table th, .matches-table td {
+    border:1px solid #444;
+    padding:10px;
+    text-align:center;
+}
+.matches-table th { background:#1db954; color:#000; }
+
+footer {
+    margin-top:30px;
+    padding:15px;
+    background:#111;
+    color:#eee;
+}
 </style>
 </head>
 <body>
-<header>Laufende Spiele - Bundesliga & mehr</header>
-<main>
-<h2>Live-Spiele</h2>
-<table id="liveGames">
-<thead>
-<tr>
-<th>Heimteam</th>
-<th>Gastteam</th>
-<th>Ergebnis</th>
-</tr>
-</thead>
-<tbody>
-<tr><td colspan="3">Lade Daten...</td></tr>
-</tbody>
+
+<h2>⚽ Live Spiele</h2>
+<table class="matches-table">
+    <thead>
+        <tr>
+            <th>Heimteam</th>
+            <th>Gastteam</th>
+            <th>Ergebnis</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        <tr><td colspan="3">Lade Spiele...</td></tr>
+    </tbody>
 </table>
-</main>
+
+<footer>
+GoalNews © 2025
+</footer>
 
 <script src="js/config.js"></script>
 <script src="js/google-sheets-client.js"></script>
-<script src="js/table-renderer.js"></script>
 <script src="js/sheets-api.js"></script>
 <script src="js/auto-refresh.js"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-    const tableBody = document.querySelector("#liveGames tbody");
+    const tableBody = document.getElementById("tableBody");
     const api = SheetsAPI.getInstance();
     const autoRefresh = AutoRefresh.getInstance();
 
     async function updateGames() {
         try {
-            const data = await api.fetchTicker(); // Daten vom Sheet
+            const data = await api.fetchTicker(); // Alle Zeilen aus dem Sheet
             tableBody.innerHTML = "";
 
-            // Annahme: B=0, C=1, D=2 oder je nach Sheet
             data.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${row[0] || "-"}</td>
-                    <td>${row[1] || "-"}</td>
-                    <td>${row[2] || "-"}</td>
-                `;
-                tableBody.appendChild(tr);
+                // Spalten: B=1, C=2, D=3
+                if(row[1] && row[2] && row[3]){
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td>`;
+                    tableBody.appendChild(tr);
+                }
             });
-        } catch (e) {
+
+            if(tableBody.innerHTML === ""){
+                tableBody.innerHTML = "<tr><td colspan='3'>Keine aktuellen Spiele</td></tr>";
+            }
+        } catch(e){
             console.error("Fehler beim Laden der Spiele:", e);
             tableBody.innerHTML = "<tr><td colspan='3'>Fehler beim Laden der Spiele</td></tr>";
         }
     }
 
-    updateGames();
-    autoRefresh.start(updateGames, 10000, "LiveGames"); // alle 10 Sek.
+    // Spiele alle 10 Sekunden aktualisieren
+    autoRefresh.start(updateGames, 10000, "LiveGames");
 });
 </script>
+
 </body>
 </html>
