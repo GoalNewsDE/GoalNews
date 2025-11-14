@@ -169,21 +169,27 @@
           box-shadow: 0 0 5px rgba(255, 223, 0, 0.6);
         }
       }
+
+      /* HIDDEN BREAKING NEWS */
+      #breakingNews.locked {
+        opacity: 0.2;
+        filter: grayscale(1);
+        pointer-events: none;
+      }
     </style>
   </head>
 
   <body>
     <!-- Breaking News -->
-    <div id="breakingNews">
-  <div class="news-wrapper">
-    <span class="news-item">Deutschland-Kader für November-Länderspiele enthält fünf Spieler des FC Bayern München</span>
-    <span class="news-item">Julian Nagelsmann betont: Im letzten WM-Quali-Block geht’s nur noch um Siege, keine Experimente mehr</span>
-    <span class="news-item">Borussia Dortmund bietet Julian Brandt einen neuen Vertrag an</span>
-    <span class="news-item">DFB fordert Entschädigung, wenn Spieler nach Jugendzeit eine andere Nationalmannschaft wählen</span>
-    <span class="news-item">Lukas Podolski plant, seine aktive Fußballkarriere am Saisonende zu beenden</span>
-  </div>
-</div>
-</div>
+    <div id="breakingNews" class="locked"> <!-- erscheint gesperrt -->
+      <div class="news-wrapper">
+        <span class="news-item">Deutschland-Kader für November-Länderspiele enthält fünf Spieler des FC Bayern München</span>
+        <span class="news-item">Julian Nagelsmann betont: Im letzten WM-Quali-Block geht’s nur noch um Siege, keine Experimente mehr</span>
+        <span class="news-item">Borussia Dortmund bietet Julian Brandt einen neuen Vertrag an</span>
+        <span class="news-item">DFB fordert Entschädigung, wenn Spieler nach Jugendzeit eine andere Nationalmannschaft wählen</span>
+        <span class="news-item">Lukas Podolski plant, seine aktive Fußballkarriere am Saisonende zu beenden</span>
+      </div>
+    </div>
 
     <!-- Header -->
     <header class="navbar">
@@ -203,11 +209,9 @@
         <li><a href="comments.html">Kommentar Forum</a></li>
         <li><a href="lastgameday.html">Letzter Spieltag</a></li>
         <li><a href="feedback.html">Helfen Sie uns!</a></li>
-        <li>
-          <a href="https://whatsapp.com/channel/0029Vb7PDwN8V0toB3ATWZ1Y"
+        <li><a href="https://whatsapp.com/channel/0029Vb7PDwN8V0toB3ATWZ1Y"
             >WhatsApp</a
-          >
-        </li>
+          ></li>
         <li><a href="https://www.youtube.com/@Goalnewsde">YouTube</a></li>
       </ul>
     </header>
@@ -217,6 +221,7 @@
       <h2>⏱️ 11. Spieltag startet in:</h2>
       <div id="countdown">lade...</div>
     </div>
+
     <!-- 🏆 Aktueller Bundesliga-Spieltag -->
     <div class="matches" style="text-align: center; margin-top: 40px">
       <h2 style="color: #1db954">🏆 Bundesliga-Spieltag 11</h2>
@@ -279,14 +284,20 @@
       <a href="Impressum.html">Impressum</a>
     </footer>
 
-    <!-- Firebase Live Games -->
+    <!-- Firebase Live Games + Breaking News Zugriff -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
       import {
         getFirestore,
         collection,
-        onSnapshot,
+        doc,
+        getDoc,
+        onSnapshot
       } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+      import {
+        getAuth,
+        onAuthStateChanged
+      } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBmIcdFtxv4jBJKdiAkEiwnkQ8yRwiG_0w",
@@ -299,6 +310,30 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      //--------------------------------------------------------------------
+      // 🔥 BREAKING NEWS SPERRE CODE
+      //--------------------------------------------------------------------
+      const breakingEl = document.getElementById("breakingNews");
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          breakingEl.classList.add("locked");
+          return;
+        }
+
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+
+        if (snap.exists() && snap.data().breakingNews === true) {
+          breakingEl.classList.remove("locked");
+        } else {
+          breakingEl.classList.add("locked");
+        }
+      });
+      //--------------------------------------------------------------------
+
       const tableBody = document.getElementById("tableBody");
       const matchTimers = new Map();
 
