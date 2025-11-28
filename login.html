@@ -113,11 +113,13 @@
 
           if (!user.emailVerified) {
             await signOut(auth);
-            alert("Bro check deine Mail und verifizier dich erst.");
+            alert(
+              "Hast du dich schon registriert? Oder dein Passwort ist falsch..."
+            );
             return;
           }
 
-          window.location.href = "seite_im_aufbau.html";
+          window.location.href = "special.html";
         } catch (err) {
           alert(err.message);
         }
