@@ -6,17 +6,16 @@
     <title>Login</title>
 
     <style>
+      /* … dein bisheriges CSS … */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-
       html,
       body {
         height: 100%;
       }
-
       body {
         display: flex;
         justify-content: center;
@@ -25,7 +24,6 @@
         font-family: Arial, sans-serif;
         color: white;
       }
-
       .container {
         background: #1a1a1a;
         padding: 30px;
@@ -34,7 +32,6 @@
         text-align: center;
         box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
       }
-
       input {
         width: 100%;
         padding: 12px;
@@ -42,7 +39,6 @@
         border: none;
         border-radius: 6px;
       }
-
       button {
         width: 100%;
         padding: 12px;
@@ -54,11 +50,9 @@
         font-size: 16px;
         cursor: pointer;
       }
-
       button:hover {
         background: #3b5bbb;
       }
-
       a {
         display: block;
         margin-top: 15px;
@@ -84,16 +78,15 @@
       import {
         getAuth,
         signInWithEmailAndPassword,
-        signOut,
       } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSyBmIcdFtxv4jBJKdiAkEiwnkQ8yRwiG_0w",
-        authDomain: "goalnewsde-community.firebaseapp.com",
-        projectId: "goalnewsde-community",
-        storageBucket: "goalnewsde-community.firebasestorage.app",
-        messagingSenderId: "134523022055",
-        appId: "1:134523022055:web:4f35ed7812d06e4fb55042",
+        apiKey: "…",
+        authDomain: "…",
+        projectId: "…",
+        storageBucket: "…",
+        messagingSenderId: "…",
+        appId: "…",
       };
 
       const app = initializeApp(firebaseConfig);
@@ -102,26 +95,11 @@
       document.getElementById("loginBtn").onclick = async () => {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-
         try {
-          const userCred = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-          const user = userCred.user;
-
-          if (!user.emailVerified) {
-            await signOut(auth);
-            alert(
-              "Hast du dich schon registriert? Oder dein Passwort ist falsch..."
-            );
-            return;
-          }
-
+          await signInWithEmailAndPassword(auth, email, password);
           window.location.href = "special.html";
         } catch (err) {
-          alert(err.message);
+          alert("E-Mail oder Passwort falsch, Bro.");
         }
       };
     </script>
