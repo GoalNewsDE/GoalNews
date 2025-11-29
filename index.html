@@ -159,7 +159,7 @@
       >
         Übernehmen
       </button>
-      <h2>⏱️ Bundesliga-Konferenz startet in:</h2>
+      <h2>⏱️ Topspiel startet in:</h2>
       <div id="countdown">lade...</div>
     </div>
 
@@ -223,16 +223,9 @@
     </footer>
     <script>
       const countdownEl = document.getElementById("countdown");
-      let targetDate = new Date("2025-11-30T15:30:00");
 
-      const inputEl = document.getElementById("countdownInput");
-      const applyBtn = document.getElementById("applyCountdown");
-
-      applyBtn.addEventListener("click", () => {
-        const val = inputEl.value;
-        if (!val) return;
-        targetDate = new Date(val);
-      });
+      // ✅ Hier deine Zielzeit einstellen (Format: "YYYY-MM-DD HH:MM:SS")
+      const targetDate = new Date("2025-11-30 18:30:00");
 
       function updateCountdown() {
         const now = new Date();
@@ -243,11 +236,12 @@
           return;
         }
 
-        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
 
-        countdownEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+        countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
       }
 
       updateCountdown();
