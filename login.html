@@ -77,8 +77,14 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
       import {
         getAuth,
-        signInWithEmailAndPassword,
+        signInWithEmailAndPassword
       } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        updateDoc,
+        serverTimestamp
+      } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBmIcdFtxv4jBJKdiAkEiwnkQ8yRwiG_0w",
@@ -91,6 +97,7 @@
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
       const loginBtn = document.getElementById("loginBtn");
       const errorMsg = document.getElementById("errorMsg");
@@ -98,7 +105,7 @@
       loginBtn.addEventListener("click", async () => {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-        errorMsg.textContent = ""; // clear previous error
+        errorMsg.textContent = ""; // vorherige Fehlermeldung löschen
 
         if (!email || !password) {
           errorMsg.textContent = "Bro, gib deine E-Mail und Passwort ein!";
@@ -106,15 +113,24 @@
         }
 
         try {
-          await signInWithEmailAndPassword(auth, email, password);
-          // ✅ Redirect to special page
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          // ✅ Letzten Login speichern
+          const userRef = doc(db, "users", user.uid);
+          await updateDoc(userRef, {
+            last_login: serverTimestamp()
+          });
+
+          // ✅ Weiterleitung nach Login
           window.location.href = "special.html";
+
         } catch (err) {
           console.error(err);
-          errorMsg.textContent =
-            "E-Mail oder Passwort falsch, Bro. Check deine Eingabe!";
+          errorMsg.textContent = "E-Mail oder Passwort falsch, Bro. Check deine Eingabe!";
         }
       });
     </script>
   </body>
 </html>
+
