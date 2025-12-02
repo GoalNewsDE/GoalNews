@@ -467,6 +467,7 @@
         collection,
         doc,
         onSnapshot,
+        getDoc
       } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
       import {
         getAuth,
@@ -488,6 +489,29 @@
       const db = getFirestore(app);
       const auth = getAuth(app);
       setPersistence(auth, browserLocalPersistence);
+
+      
+      // --- Wartungsmodus prüfen live ---
+      function watchMaintenance() {
+        const docRef = doc(db, "settings", "main");
+      
+        onSnapshot(docRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.maintenance === true) {
+              console.log("⚠️ Wartungsmodus aktiv, Weiterleitung...");
+              window.location.href = "wartungsarbeiten.html";
+            }
+          } else {
+            console.error("❌ Einstellungen nicht gefunden");
+          }
+        });
+      }
+
+// Direkt starten
+      watchMaintenance();
+
+
 
       const breakingEl = document.getElementById("breakingNews");
       onAuthStateChanged(auth, (user) => {
